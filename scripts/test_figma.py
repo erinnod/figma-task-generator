@@ -13,36 +13,34 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.figma.client import FigmaClient, FigmaClientError
+from src.figma.parser import FigmaParser
 
 async def main():
     client = FigmaClient()
+    parser = FigmaParser()
 
     figma_url = input("Enter your Figma URL: ").strip()
 
-    print(f"Extracting file key from URL: {figma_url}")
     file_key = FigmaClient.extract_file_key(figma_url)
-    print(f"File key: {file_key}")
-
-    print(f"Fetching file: {file_key}")
+    print(f"\nFetching file: {file_key}")
 
     try:
-        data = await client.get_file(file_key)
+        raw_data = await client.get_file(file_key)
+        print(f"Fetched: {raw_data.get('name')}")
 
-        print(f"\n Success!")
-        print(f"File name: {data.get('name', 'Unknown')}")
-        print(f"File last modified: {data.get('lastModified', 'Unknown')}")
+        print("\nParsing design...")
+        context = parser.parse(raw_data)
 
-        # Show top level structure
-        document = data.get('document', {})
-        pages = document.get('children', [])
-        print(f"Number of pages: {len(pages)}")
-
-        for page in pages:
-            frames = page.get('children', [])
-            print(f"Page '{page.get('name', 'Unknown')}': {len(frames)} top-level frames")
+        print(f"\nDesign Context Summary:")
+        print(f"  File: {context.file_name}")
+        print(f"  Valid pages: {context.pages}")
+        print(f"  Total screens: {context.total_screens}")
+        print(f"  Inferred features: {context.inferred_features}")
+        print(f"  Component summary: {context.component_summary}")
 
     except FigmaClientError as e:
-        print(f"\n Error: {e}")
+        print(f"\nError: {e}")
+
 
 if __name__ == "__main__":
     asyncio.run(main())
