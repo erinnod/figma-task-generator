@@ -14,6 +14,7 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from src.figma.client import FigmaClient, FigmaClientError
 from src.figma.parser import FigmaParser
+from src.llm.context_builder import ContextBuilder
 
 async def main():
     client = FigmaClient()
@@ -31,12 +32,13 @@ async def main():
         print("\nParsing design...")
         context = parser.parse(raw_data)
 
-        print(f"\nDesign Context Summary:")
-        print(f"  File: {context.file_name}")
-        print(f"  Valid pages: {context.pages}")
-        print(f"  Total screens: {context.total_screens}")
-        print(f"  Inferred features: {context.inferred_features}")
-        print(f"  Component summary: {context.component_summary}")
+        builder = ContextBuilder()
+        llm_context = builder.build(context)
+
+        print("\n" + "="*50)
+        print("LLM CONTEXT OUTPUT")
+        print("="*50)
+        print(llm_context)
 
     except FigmaClientError as e:
         print(f"\nError: {e}")

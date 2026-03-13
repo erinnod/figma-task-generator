@@ -8,13 +8,16 @@ class Settings(BaseSettings):
     # LLM
     anthropic_api_key: str = ""
     openai_api_key: str = ""
-    llm_provider: Literal["anthropic", "openai"] = "anthropic"
-    llm_model: str = "claude-opus-4-5"
+    llm_provider: Literal["anthropic", "openai"] = "openai"
+    llm_model: str = "gpt-4o-mini"
     
     # API
     api_host: str = "0.0.0.0"
     api_port: int = 8000
     debug: bool = True
+
+    # Database
+    database_url: str = ""
 
     class Config:
         env_file = ".env"
